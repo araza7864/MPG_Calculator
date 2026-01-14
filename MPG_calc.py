@@ -2,7 +2,10 @@ import os
 import requests
 ORS_api_key = os.getenv("ORS_API_KEY")
 GEOCODE_URL = "https://api.openrouteservice.org/geocode/search"
-DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/driving-car"
+DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/driving-car/geojson"
+
+#add geometry accurate route, not straight line
+#look up vehicle profile for more accurate mpg estimate, possibly use Fueleconomy.gov API
 
 def get_coordinates(address):
     params = {"api_key": ORS_api_key, "text": address, "size": 1}

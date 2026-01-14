@@ -1,0 +1,18 @@
+{
+  "origin": "Test Origin",
+  "destination": "Test Destination",
+  "distance_miles": 5.2,
+  "duration_minutes": 12.5,
+  "estimated_mpg": 30.0,
+  "geojson": {
+    "type": "Feature",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [-77.31, 38.83],
+        [-77.38, 38.87]
+      ]
+    },
+    "properties": {}
+  }
+}
