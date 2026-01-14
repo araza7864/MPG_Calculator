@@ -36,7 +36,7 @@
                 console.log("Loaded route", data.origin, "→", data.destination);
             })
             .catch(error => {
-                console.error(err);
+                console.error(error);
                 alert("Could not load route.json. Make sure map/route.json exists and you opened via http.server.");
             });
     </script>
