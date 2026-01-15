@@ -14,8 +14,27 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin="">
     </script>
+    <style>
+        #overlay {
+            position: absolute;
+            top: 12px;
+            left: 1180px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 12px 14px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family : Arial, sans-serif;
+            max-width: 360px;
+            line-height: 1.35;
+        }
+        #overlay .title { font-weight: 700; margin-bottom: 6px; }
+        #overlay .row { margin: 2px 0; }
+        #overlay hr { border: none; border-top: 1px solid #ddd; margin: 8px 0; }
+    </style>
 </head>
 <body>
+    <div id="overlay"></div>
     <div id="map" style="height: 100vh;"></div>
     <script>
         var map = L.map('map').setView([51.505, -0.09], 13);
@@ -32,13 +51,30 @@
             })
             .then(data => {
                 const routeLayer = L.geoJSON(data.geojson).addTo(map);
+                const coords = data.geojson.features[0].geometry.coordinates;
+                const start  = coords[0];
+                const end    = coords[coords.length - 1];
+                L.marker([start[1], start[0]]).addTo(map).bindPopup(`Your Location`).openPopup();
+                L.marker([end[1], end[0]]).addTo(map).bindPopup(data.destination).openPopup();
                 map.fitBounds(routeLayer.getBounds(), {padding: [20, 20]});
                 console.log("Loaded route", data.origin, "→", data.destination);
+                const s = data.summary;
+
+                document.getElementById("overlay").innerHTML = `
+                    <div class="title">Trip Summary</div>
+                    <div class="row"><b>From:</b> ${data.origin}</div>
+                    <div class="row"><b>To:</b> ${data.destination}</div>
+                    <hr>
+                    <div class="row"><b>Distance:</b> ${s.distance_miles.toFixed(2)} miles</div>
+                    <div class="row"><b>Time:</b> ${s.duration_minutes.toFixed(1)} minutes</div>
+                    <div class="row"><b>Estimated MPG:</b> ${s.estimated_mpg.toFixed(2)} MPG</div>
+                `;
             })
             .catch(error => {
                 console.error(error);
                 alert("Could not load route.json. Make sure map/route.json exists and you opened via http.server.");
             });
+
     </script>
 </body>
 </html>

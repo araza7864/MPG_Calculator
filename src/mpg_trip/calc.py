@@ -5,8 +5,8 @@ ORS_api_key = os.getenv("ORS_API_KEY")
 GEOCODE_URL = "https://api.openrouteservice.org/geocode/search"
 DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/driving-car/geojson"
 
-#add geometry accurate route, not straight line
 #look up vehicle profile for more accurate mpg estimate, possibly use Fueleconomy.gov API
+#have to add 5 options for address accuracy
 
 def get_coordinates(address):
     params = {"api_key": ORS_api_key, "text": address, "size": 1}
@@ -17,8 +17,9 @@ def get_coordinates(address):
     if not data.get("features"):
         raise ValueError(f"Address not found: {address}")
     lon, lat = data["features"][0]["geometry"]["coordinates"]
+    label = data["features"][0]["properties"]["label"]
     
-    return lon, lat
+    return lon, lat, label
 
 def get_directions(start_lon, start_lat, end_lon, end_lat):
 
@@ -37,8 +38,8 @@ def get_directions(start_lon, start_lat, end_lon, end_lat):
 
 str_address = input("What is your location: ")
 end_address = input("Where would you like to go: ")
-start_lon, start_lat = get_coordinates(str_address)
-end_lon, end_lat = get_coordinates(end_address)
+start_lon, start_lat, str_loc = get_coordinates(str_address)
+end_lon, end_lat, end_add = get_coordinates(end_address)
 
 distance_meters, duration_seconds, geojson_data = get_directions(start_lon, start_lat, end_lon, end_lat)
 
@@ -71,8 +72,8 @@ print(f"Highway weight used: {highway_weight_value:.2f}")
 print(f"Estimated MPG for your trip: {est_mpg:.2f} MPG")
 
 output = {
-    "origin": str_address,
-    "destination": end_address,
+    "origin": str_loc,
+    "destination": end_add,
     "summary": {
     "distance_miles": distance_miles,
     "duration_minutes": duration_seconds/60,
