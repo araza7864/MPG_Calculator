@@ -33,7 +33,10 @@ def get_directions(start_lon, start_lat, end_lon, end_lat):
     body = {"coordinates": [[start_lon, start_lat], [end_lon, end_lat]]}
 
     r = requests.post(DIRECTIONS_URL, headers=headers, json=body, timeout=15)
-    r.raise_for_status()
+    if not r.ok:
+        print("ORS Directions status: ", r.status_code)
+        print("ORS Directions response: ", r.text[:500])
+        r.raise_for_status()
     geojson_data = r.json()
 
     summary = geojson_data["features"][0]["properties"]["summary"]
@@ -44,7 +47,10 @@ def get_directions(start_lon, start_lat, end_lon, end_lat):
 
 def fetch_menu_items(url, params=None):
     headers = {"Accept": "application/json"}
-    r = requests.get(url, headers, params=params, timeout=15)
+    r = requests.get(url, headers=headers, params=params, timeout=15)
+    print("FuelEconomy status:", r.status_code)
+    print("FuelEconomy content-type:", r.headers.get("Content-Type"))
+    print("FuelEconomy first 120 chars:", r.text[:120])
     r.raise_for_status()
     data = r.json()
 
