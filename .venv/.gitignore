@@ -1,0 +1,14 @@
+src/map/route.json
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db

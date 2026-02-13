@@ -42,22 +42,34 @@
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
-        fetch('./route.json')
-            .then(response=> {
+
+        let routeLayer = null;
+        let startMarker = null;
+        let endMarker = null;
+
+        async function loadRoute() {
+            try {
+                const response = await fetch('route.json?t=' + Date.now());
                 if (!response.ok) {
                     throw new Error("route.json not found or failed to load");
                 }
-                return response.json();
-            })
-            .then(data => {
-                const routeLayer = L.geoJSON(data.geojson).addTo(map);
+                const data = await response.json();
+
+                if (routeLayer) map.removeLayer(routeLayer);
+                if (startMarker) map.removeLayer(startMarker);
+                if (endMarker) map.removeLayer(endMarker);
+
+                routeLayer = L.geoJSON(data.geojson).addTo(map);
+
                 const coords = data.geojson.features[0].geometry.coordinates;
                 const start  = coords[0];
                 const end    = coords[coords.length - 1];
-                L.marker([start[1], start[0]]).addTo(map).bindPopup(`Your Location`).openPopup();
-                L.marker([end[1], end[0]]).addTo(map).bindPopup(data.destination).openPopup();
+
+                startMarker = L.marker([start[1], start[0]]).addTo(map).bindPopup(`Your Location`);
+                endMarker = L.marker([end[1], end[0]]).addTo(map).bindPopup(data.destination);
+
                 map.fitBounds(routeLayer.getBounds(), {padding: [20, 20]});
-                console.log("Loaded route", data.origin, "→", data.destination);
+
                 const s = data.summary;
 
                 document.getElementById("overlay").innerHTML = `
@@ -69,12 +81,14 @@
                     <div class="row"><b>Time:</b> ${s.duration_minutes.toFixed(1)} minutes</div>
                     <div class="row"><b>Estimated MPG:</b> ${s.estimated_mpg.toFixed(2)} MPG</div>
                 `;
-            })
-            .catch(error => {
-                console.error(error);
-                alert("Could not load route.json. Make sure map/route.json exists and you opened via http.server.");
-            });
+            }
+            catch(error) {
+                console.log("Waiting for route.json...");
+            }
+        }
 
+        loadRoute();
+        setInterval(loadRoute, 2000);
     </script>
 </body>
 </html>
