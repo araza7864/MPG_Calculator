@@ -18,14 +18,14 @@
         #overlay {
             position: absolute;
             top: 12px;
-            left: 1180px;
+            right: 12px;
             z-index: 1000;
             background-color: rgba(255, 255, 255, 0.95);
             padding: 12px 14px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             font-family : Arial, sans-serif;
-            max-width: 360px;
+            max-width: min(360px, calc(100vw - 52px));
             line-height: 1.35;
         }
         #overlay .title { font-weight: 700; margin-bottom: 6px; }
@@ -47,6 +47,12 @@
         let startMarker = null;
         let endMarker = null;
 
+        function escapeHtml(value) {
+            const element = document.createElement('span');
+            element.textContent = String(value);
+            return element.innerHTML;
+        }
+
         async function loadRoute() {
             try {
                 const response = await fetch('route.json?t=' + Date.now());
@@ -66,16 +72,16 @@
                 const end    = coords[coords.length - 1];
 
                 startMarker = L.marker([start[1], start[0]]).addTo(map).bindPopup(`Your Location`);
-                endMarker = L.marker([end[1], end[0]]).addTo(map).bindPopup(data.destination);
+                endMarker = L.marker([end[1], end[0]]).addTo(map).bindPopup(escapeHtml(data.destination));
 
                 map.fitBounds(routeLayer.getBounds(), {padding: [20, 20]});
 
                 const s = data.summary;
 
                 document.getElementById("overlay").innerHTML = `
-                    <div class="title">Trip Summary</div>
-                    <div class="row"><b>From:</b> ${data.origin}</div>
-                    <div class="row"><b>To:</b> ${data.destination}</div>
+                    <div class="title">${data.demo ? 'Demo — synthetic route' : 'Trip Summary'}</div>
+                    <div class="row"><b>From:</b> ${escapeHtml(data.origin)}</div>
+                    <div class="row"><b>To:</b> ${escapeHtml(data.destination)}</div>
                     <hr>
                     <div class="row"><b>Distance:</b> ${s.distance_miles.toFixed(2)} miles</div>
                     <div class="row"><b>Time:</b> ${s.duration_minutes.toFixed(1)} minutes</div>

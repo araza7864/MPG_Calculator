@@ -21,7 +21,7 @@ def start_server():
         **kwargs
     )
 
-    with ReusableTCPServer(("", PORT), handler) as httpd:
+    with ReusableTCPServer(("127.0.0.1", PORT), handler) as httpd:
         print(f"Serving at http://localhost:{PORT}")
         try:
             httpd.serve_forever()

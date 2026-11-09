@@ -31,6 +31,8 @@ def fetch_menu_items(url, params=None):
 
 
 def choose_from_menu(items, prompt, per_row=4):
+    if not items:
+        raise ValueError("No vehicle options were returned for this selection.")
     if len(items) == 1:
         print(f"{prompt} {items[0]['text']} (auto-selected)")
         return items[0]

@@ -1,107 +1,58 @@
-# MPG Trip Estimator
+# Smart Trip MPG Calculator
 
-A full-stack Python project that estimates real-world fuel efficiency for a trip by combining routing data, vehicle MPG statistics, and speed-based modeling.
+A Python command-line app that combines a driving route with vehicle fuel-economy data to estimate trip MPG. The result includes a local Leaflet map and a JSON route summary.
 
-The application calculates a route between two addresses, estimates average speed, applies a highway/city weighting algorithm, and visualizes the route on a local interactive map.
+## What it does
 
----
+- Geocodes two addresses and retrieves a driving route through OpenRouteService.
+- Lets you select a vehicle using FuelEconomy.gov data.
+- Estimates city/highway driving mix from the route's average speed and combines the vehicle's city/highway MPG using a weighted harmonic mean.
+- Displays distance, duration, estimated MPG, and the route on an interactive map.
 
-## Features
+These are heuristic estimates, not measured fuel consumption. The current CLI calculates one route per run; it does not automatically compare alternate routes or account for traffic, weather, elevation, or driving style.
 
-- Address geocoding using OpenRouteService API
-- Route calculation with distance and duration analysis
-- Vehicle selection via FuelEconomy.gov API
-- Speed-based MPG estimation algorithm
-- GeoJSON route visualization
-- Local HTTP server for map rendering
-- Modular Python architecture
+## Run locally
 
----
+Requires Python 3.12+, an OpenRouteService API key, and internet access.
 
-## Tech Stack
-
-- Python
-- Requests
-- HTTPServer
-- REST APIs
-- GeoJSON
-- HTML/JavaScript map visualization
-
----
-
-## Project Structure
-
-
-src/
-map/
-map.html
-route.json
-
-mpg_trip/
-main.py
-config.py
-route_service.py
-vehicle_service.py
-mpg_calculator.py
-server.py
-
-
----
-
-## Setup
-
-### 1. Clone repository
-
-
-git clone <repo-url>
+```bash
+git clone https://github.com/araza7864/MPG_Calculator.git
 cd MPG_Calculator
+python -m venv .venv
+```
 
+Activate with `.venv\Scripts\activate` on Windows or `source .venv/bin/activate` on macOS/Linux, then:
 
-### 2. Install dependencies
+```bash
+python -m pip install -r requirements.txt
+```
 
+For a quick demonstration without API keys:
 
-pip install -r requirements.txt
+```bash
+python src/mpg_trip/main.py --demo
+```
 
+The demo is explicitly labeled synthetic. It exercises JSON output and the map display; map tiles and Leaflet still need internet access. Add `--no-browser` to generate the JSON without starting a server.
 
-### 3. Create environment variables
+Copy `.env.example` to `.env` in the repository root and set `ORS_API_KEY`. Then run from the repository root:
 
-Copy `.env.example` to `.env`:
+```bash
+python src/mpg_trip/main.py
+```
 
+Follow the address and vehicle prompts. The app saves `src/map/route.json` and opens `http://localhost:8000/map.html`. Keep the terminal running while viewing the map; press Ctrl+C to stop. Local route output and API keys are ignored by Git.
 
-ORS_API_KEY=your_api_key_here
+## Project layout
 
+- `src/mpg_trip/`: routing, vehicle lookup, fuel model, CLI, and local map server.
+- `src/map/map.html`: Leaflet route display.
+- `.env.example`: configuration template containing no credentials.
 
----
+## Checks
 
-## Run
+```bash
+python -m unittest discover -s tests
+```
 
-
-python main.py
-
-
-The browser will automatically open the map interface.
-
----
-
-## How It Works
-
-1. User enters origin and destination.
-2. OpenRouteService calculates route data.
-3. FuelEconomy API retrieves vehicle MPG stats.
-4. Estimated MPG is calculated using a speed-weighted model.
-5. Route data is saved as GeoJSON and visualized locally.
-
----
-
-## Future Improvements
-
-- Convert to FastAPI backend
-- Web UI for input instead of CLI
-- Persistent history storage
-- Deployment-ready version
-
----
-
-## Author
-
-Asad Raza   
+The checks run without API keys or network calls. A full trip requires live API access.
